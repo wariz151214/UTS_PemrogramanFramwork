@@ -1,0 +1,166 @@
+CREATE DATABASE IF NOT EXISTS `uas_pemweb_lab`;
+USE `uas_pemweb_lab`;
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+CREATE TABLE `user_roles` (
+	`role_id` CHAR(5) NOT NULL PRIMARY KEY,
+	`role_name` VARCHAR(255) NOT NULL
+)engine=innoDB;
+
+CREATE TABLE `user_accounts` (
+	`id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	`uid` VARCHAR(15) NOT NULL UNIQUE,
+	`role_id` CHAR(5) NOT NULL,
+	`full_name` VARCHAR(255) NOT NULL,
+	`email` VARCHAR(255) NOT NULL UNIQUE,
+	`password` VARCHAR(255) NOT NULL,
+	`birth_date` DATE NOT NULL,
+	`phone_number` VARCHAR(15) NOT NULL,
+	`gender` ENUM('M','F') NOT NULL,
+	`avatar` MEDIUMTEXT NOT NULL,
+	`created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+	`updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+	FOREIGN KEY(role_id) REFERENCES user_roles(role_id) ON UPDATE CASCADE
+)engine=innoDB;
+
+CREATE TABLE `facilities` (
+	`facility_id` CHAR(5) NOT NULL PRIMARY KEY,
+	`facility_name` VARCHAR(255) NOT NULL
+)engine=innoDB;
+
+CREATE TABLE `hotel_list` (
+	`id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	`name` VARCHAR(255) NOT NULL,
+	`star_rating` INT UNSIGNED NOT NULL,
+	`number_of_rooms` INT UNSIGNED NOT NULL,
+	`price_per_day` BIGINT UNSIGNED NOT NULL,
+	`address` VARCHAR(255) NOT NULL,
+	`city` VARCHAR(255) NOT NULL,
+	`province` VARCHAR(255) NOT NULL,
+	`postal_code` VARCHAR(10) NOT NULL,
+	`description` LONGTEXT NOT NULL,
+	`image` MEDIUMTEXT NOT NULL,
+	`created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+	`updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+	`deleted_at` DATETIME
+)engine=innoDB;
+
+CREATE TABLE `hotel_facilities` (
+	`id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	`hotel_id` INT NOT NULL,
+	`facility_id` CHAR(5) NOT NULL,
+	`created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+	`updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+	FOREIGN KEY(hotel_id) REFERENCES hotel_list(id) ON UPDATE CASCADE,
+	FOREIGN KEY(facility_id) REFERENCES facilities(facility_id) ON UPDATE CASCADE
+)engine=innoDB;
+
+CREATE TABLE `hotel_bookings` (
+	`id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	`user_id` VARCHAR(15) NOT NULL,
+	`booking_id` VARCHAR(14) NOT NULL,
+	`hotel_id` INT NOT NULL,
+	`full_name` VARCHAR(255) NOT NULL,
+	`phone_number` VARCHAR(15) NOT NULL,
+	`email` VARCHAR(255) NOT NULL,
+	`number_of_rooms` INT UNSIGNED NOT NULL,
+	`duration` INT UNSIGNED NOT NULL,
+	`check_in` DATETIME NOT NULL,
+	`check_out` DATETIME NOT NULL,
+	`price_per_day` BIGINT UNSIGNED NOT NULL,
+	`total_price` BIGINT UNSIGNED NOT NULL,
+	`created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+	`updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+	FOREIGN KEY(hotel_id) REFERENCES hotel_list(id) ON UPDATE CASCADE,
+	FOREIGN KEY(user_id) REFERENCES user_accounts(uid) ON UPDATE CASCADE
+)engine=innoDB;
+
+INSERT INTO `user_roles` (`role_id`, `role_name`) VALUES
+('R0001', 'Admin'),
+('R0002', 'User');
+
+INSERT INTO `hotel_list` (`name`, `star_rating`, `number_of_rooms`, `price_per_day`, `address`, `city`, `province`, `postal_code`, `description`, `image`) VALUES
+('The Oberoi Lombok', 5, 20, 4300000, 'Medana Beach, Tanjung', 'Lombok Utara', 'Nusa Tenggara Barat', '83352', 'Terletak di Lombok, The Oberoi menawarkan parkir gratis, Wi-Fi gratis di area umumnya, dan pusat kebugaran dengan kolam renang outdoor yang menghadap ke laut.', 'the-oberoi-lombok.jpg'),
+('Katamaran Hotel & Resort', 5, 20, 1300000, 'Jalan Raya Mangsit, Senggigi', 'Lombok', 'Nusa Tenggara Barat', '83355', 'Katamaran Resort terletak di Senggigi, Lombok, dan memiliki kolam renang luar ruangan yang besar serta area pantai pribadi. Restoran di hotel ini menyajikan masakan internasional, dan Anda dapat menikmati minuman sambil memandang matahari terbenam di bar. Resor tepi pantai ini menyediakan akses Wi-Fi gratis dan parkir gratis.', 'katamaran-hotel-resort.jpg'),
+('Intercontinental Bali Resort', 5, 20, 1600000, 'Jalan Uluwatu 45, Jimbaran, Kuta Selatan', 'Denpasar', 'Bali', '80361', 'InterContinental Bali Resort di Teluk Jimbaran, 10 menit berkendara dari Bandara Internasional Ngurah Rai, menyediakan hotel dengan 6 kolam renang, pusat kebugaran 24 jam, serta WiFi gratis di seluruh areanya.', 'intercontinental-bali-resort.jpg'),
+('The Apurva Kempinski Bali', 5, 20, 3600000, 'Jalan Raya Nusa Dua Selatan, Sawangan', 'Denpasar', 'Bali', '80361', 'Dikelilingi oleh tanaman hijau subur yang menghadap ke laut, The Apurva Kempinski Bali menawarkan penginapan mewah di Nusa Dua. Menawarkan kolam renang outdoor sepanjang 60 meter, resor ini juga memiliki spa. Parkir gratis dan Wi-Fi gratis disediakan.', 'the-apurva-kempinski-bali.jpg'),
+('Amanjiwo', 5, 20, 13000000, 'Ds. Majaksingi Borobudur, Borobudur', 'Magelang', 'Jawa Tengah', '56501', 'Amanjiwo has a restaurant, fitness centre, a bar and garden in Magelang. This 5-star hotel offers a 24-hour front desk and room service. There is an outdoor pool and guests can make use of free WiFi and free private parking.', 'amanjiwo.jpg'),
+('Plataran Heritage Borobudur Hotel', 4, 20, 2300000, 'Dusun Kretek, Karangrejo', 'Magelang', 'Jawa Tengah', '56553', 'Plataran Heritage Borobudur Hotel, 19 menit berjalan kaki dari Candi Borobudur yang ikonik di Magelang, menawarkan akomodasi yang dikelilingi oleh tanaman hijau tropis dan pemandangan Menoreh Hill serta fasilitas kolam renang terbuka besar, restoran mewah, pusat spa mewah, serta WiFi gratis di seluruh areanya.', 'plataran-heritage-borobudur-hotel.jpg'),
+('Aston Pasteur', 4, 20, 650000, 'Jalan Dr. Djunjunan No. 162 , Pasteur', 'Bandung', 'Jawa Barat', '40162', 'Memiliki sebuah kolam renang outdoor dan restoran, Aston Pasteur menawarkan akomodasi di Bandung. Wi-Fi dapat diakses secara gratis di seluruh area hotel, dan layanan antar-jemput gratis ke bandara juga tersedia.', 'aston-pasteur.jpg'),
+('The Trans Luxury Hotel', 5, 20, 2500000, 'Jl. Gatot Subroto No. 289, Buahbatu', 'Bandung', 'Jawa Barat', '40273', 'Terletak di Kompleks Trans Studio Bandung yang terintegrasi, The Trans Luxury Hotel Bandung menawarkan kamar-kamar modern dengan iPod dock. Hotel ini memiliki kolam renang luar ruangan, pusat spa, dan pusat kebugaran 24 jam. Wi-Fi tersedia gratis di seluruh area hotel.', 'the-trans-luxury-hotel.jpg'),
+('Hotel Indonesia Kempinski Jakarta', 5, 20, 2500000, 'Jalan MH Thamrin No. 1, Thamrin', 'Jakarta Pusat', 'Jakarta', '10310', 'Terletak di jantung daerah Jakarta Pusat dekat dengan Bundaran HI yang terkenal, Hotel Indonesia Kempinski Jakarta menawarkan akomodasi bintang 5 dengan pemandangan cakrawala kota. Hotel ini menawarkan 6 pilihan tempat makan, spa mewah, dan kolam renang di atap gedung.', 'hotel-indonesia-kempinski-jakarta.jpg'),
+('Sari Pacific Jakarta', 4, 20, 1100000, 'Jl. MH Thamrin No. 6, Thamrin', 'Jakarta Pusat', 'Jakarta', '10340', 'Sari Pacific Jakarta merupakan akomodasi mewah yang berjarak 1 km dari Stasiun Kereta Api Gambir serta dekat Bundaran HI dan Sarinah Shopping Mall. Hotel ini menawarkan 4 pilihan tempat bersantap, kolam renang terbuka, dan kamar-kamar yang luas dengan Wi-Fi gratis.', 'sari-pacific-jakarta.jpg');
+
+INSERT INTO `facilities` (`facility_id`, `facility_name`) VALUES
+('F0001', 'AC'),
+('F0002', 'Restaurant'),
+('F0003', 'Swimming Pool'),
+('F0004', '24-Hour Front Desk'),
+('F0005', 'Parking'),
+('F0006', 'Elevator'),
+('F0007', 'WiFi');
+
+INSERT INTO `hotel_facilities` (`hotel_id`, `facility_id`) VALUES
+(1, 'F0003'),
+(1, 'F0002'),
+(1, 'F0004'),
+(1, 'F0005'),
+(1, 'F0007'),
+(2, 'F0001'),
+(2, 'F0002'),
+(2, 'F0003'),
+(2, 'F0004'),
+(2, 'F0005'),
+(2, 'F0007'),
+(3, 'F0003'),
+(3, 'F0005'),
+(3, 'F0007'),
+(4, 'F0001'),
+(4, 'F0002'),
+(4, 'F0003'),
+(4, 'F0004'),
+(4, 'F0005'),
+(4, 'F0006'),
+(4, 'F0007'),
+(5, 'F0003'),
+(5, 'F0004'),
+(5, 'F0007'),
+(5, 'F0002'),
+(6, 'F0001'),
+(6, 'F0002'),
+(6, 'F0003'),
+(6, 'F0004'),
+(6, 'F0005'),
+(6, 'F0006'),
+(6, 'F0007'),
+(7, 'F0001'),
+(7, 'F0002'),
+(7, 'F0003'),
+(7, 'F0004'),
+(7, 'F0005'),
+(7, 'F0006'),
+(7, 'F0007'),
+(8, 'F0001'),
+(8, 'F0002'),
+(8, 'F0003'),
+(8, 'F0004'),
+(8, 'F0005'),
+(8, 'F0007'),
+(9, 'F0001'),
+(9, 'F0002'),
+(9, 'F0003'),
+(9, 'F0004'),
+(9, 'F0005'),
+(9, 'F0006'),
+(9, 'F0007'),
+(10, 'F0002'),
+(10, 'F0003'),
+(10, 'F0004'),
+(10, 'F0005'),
+(10, 'F0007');
+
+SET FOREIGN_KEY_CHECKS = 1;
